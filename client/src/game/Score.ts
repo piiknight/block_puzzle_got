@@ -5,6 +5,7 @@ export class Score {
   highScore = 0;
   combo = 0;
   lastClearPoints = 0;
+  onNewHighScore?: (score: number) => void;
 
   constructor() {
     this.loadHighScore();
@@ -30,6 +31,7 @@ export class Score {
     if (this.current > this.highScore) {
       this.highScore = this.current;
       this.saveHighScore();
+      this.onNewHighScore?.(this.highScore);
     }
   }
 

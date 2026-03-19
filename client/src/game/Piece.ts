@@ -87,29 +87,65 @@ export function getPieceBounds(piece: PieceShape): { rows: number; cols: number 
   return { rows: maxR + 1, cols: maxC + 1 };
 }
 
+function canFit(piece: PieceShape, board: { canPlace(piece: PieceShape, row: number, col: number): boolean; size: number }): boolean {
+  for (let r = 0; r < board.size; r++) {
+    for (let c = 0; c < board.size; c++) {
+      if (board.canPlace(piece, r, c)) return true;
+    }
+  }
+  return false;
+}
+
+function randomSmallPiece(): PieceShape {
+  // Small pieces (1-2 cells) that fit almost anywhere
+  const small: [number, number][][] = [
+    [[0, 0]],
+    [[0, 0], [0, 1]],
+    [[0, 0], [1, 0]],
+  ];
+  const cells = small[Math.floor(Math.random() * small.length)];
+  return { cells, color: Math.floor(Math.random() * 7) + 1 };
+}
+
 export function generatePieces(count: number, board?: { canPlace(piece: PieceShape, row: number, col: number): boolean; size: number }): PieceShape[] {
   if (!board) return Array.from({ length: count }, () => randomPiece());
 
-  const maxAttempts = 100;
+  // All pieces must individually fit on the board
+  const pieces: PieceShape[] = [];
+  for (let i = 0; i < count; i++) {
+    let piece: PieceShape | null = null;
 
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const pieces = Array.from({ length: count }, () => randomPiece());
+    // Try random pieces up to 50 times
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const candidate = randomPiece();
+      if (canFit(candidate, board)) {
+        piece = candidate;
+        break;
+      }
+    }
 
-    // At least 1 piece must be placeable somewhere
-    const hasValid = pieces.some(piece => {
-      for (let r = 0; r < board.size; r++) {
-        for (let c = 0; c < board.size; c++) {
-          if (board.canPlace(piece, r, c)) return true;
+    // Fallback: use a small piece that always fits
+    if (!piece) {
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const candidate = randomSmallPiece();
+        if (canFit(candidate, board)) {
+          piece = candidate;
+          break;
         }
       }
-      return false;
-    });
+    }
 
-    if (hasValid) return pieces;
+    // Ultimate fallback: single cell
+    if (!piece) {
+      piece = { cells: [[0, 0]], color: Math.floor(Math.random() * 7) + 1 };
+    }
+
+    pieces.push(piece);
   }
 
-  // Fallback: force a single cell piece that can always fit
-  const pieces = Array.from({ length: count }, () => randomPiece());
-  pieces[0] = { cells: [[0, 0]], color: Math.floor(Math.random() * 7) + 1 };
   return pieces;
+}
+
+export function generateSinglePiece(board: { canPlace(piece: PieceShape, row: number, col: number): boolean; size: number }): PieceShape {
+  return generatePieces(1, board)[0];
 }
