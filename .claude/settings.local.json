@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(rm -f src/counter.ts src/assets/*.svg)",
+      "Bash(mkdir -p src/game)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(npm install:*)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(npx vercel:*)"
+    ],
+    "additionalDirectories": [
+      "e:\\projects\\AI\\game_on_telegram\\docs\\plans"
+    ]
+  }
+}

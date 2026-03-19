@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: block-blast-server
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBAPP_URL
+        sync: false
+      - key: SERVER_URL
+        sync: false
+      - key: PORT
+        value: 3001
