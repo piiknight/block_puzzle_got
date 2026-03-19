@@ -87,6 +87,29 @@ export function getPieceBounds(piece: PieceShape): { rows: number; cols: number 
   return { rows: maxR + 1, cols: maxC + 1 };
 }
 
-export function generatePieces(count: number): PieceShape[] {
-  return Array.from({ length: count }, () => randomPiece());
+export function generatePieces(count: number, board?: { canPlace(piece: PieceShape, row: number, col: number): boolean; size: number }): PieceShape[] {
+  if (!board) return Array.from({ length: count }, () => randomPiece());
+
+  const maxAttempts = 100;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const pieces = Array.from({ length: count }, () => randomPiece());
+
+    // At least 1 piece must be placeable somewhere
+    const hasValid = pieces.some(piece => {
+      for (let r = 0; r < board.size; r++) {
+        for (let c = 0; c < board.size; c++) {
+          if (board.canPlace(piece, r, c)) return true;
+        }
+      }
+      return false;
+    });
+
+    if (hasValid) return pieces;
+  }
+
+  // Fallback: force a single cell piece that can always fit
+  const pieces = Array.from({ length: count }, () => randomPiece());
+  pieces[0] = { cells: [[0, 0]], color: Math.floor(Math.random() * 7) + 1 };
+  return pieces;
 }

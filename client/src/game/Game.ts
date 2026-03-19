@@ -39,7 +39,7 @@ export class Game {
       onCloseLeaderboard: this.closeLeaderboard.bind(this),
     });
 
-    this.pieces = generatePieces(3);
+    this.pieces = generatePieces(3, this.board);
     this.input.updatePieces(this.pieces);
 
     window.addEventListener('resize', () => {
@@ -97,7 +97,7 @@ export class Game {
     // Check if need new pieces
     const remaining = this.pieces.filter(p => p !== null) as PieceShape[];
     if (remaining.length === 0) {
-      this.pieces = generatePieces(3);
+      this.pieces = generatePieces(3, this.board);
     }
 
     this.input.updatePieces(this.pieces);
@@ -115,7 +115,7 @@ export class Game {
   private restart(): void {
     this.board.reset();
     this.score.reset();
-    this.pieces = generatePieces(3);
+    this.pieces = generatePieces(3, this.board);
     this.gameOver = false;
     this.animating = false;
     this.showingLeaderboard = false;
