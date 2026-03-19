@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'https://block-puzzle-got.onrender.com';
 
 function getInitData(): string {
   return window.Telegram?.WebApp?.initData || '';
