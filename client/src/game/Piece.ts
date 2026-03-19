@@ -1,6 +1,6 @@
 import type { PieceShape } from '../types.ts';
 
-// All block shapes used in Block Blast
+// All block shapes used in Block Puzzle
 const SHAPES: [number, number][][] = [
   // Single
   [[0, 0]],

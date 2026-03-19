@@ -194,7 +194,7 @@ export class Renderer {
     ctx.fillStyle = this.theme.text;
     ctx.font = 'bold 16px system-ui, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Block Blast', padding, padding + 12);
+    ctx.fillText('Block Puzzle', padding, padding + 12);
   }
 
   drawGameOver(score: number, highScore: number): void {
