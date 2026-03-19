@@ -4,7 +4,7 @@ import { Board } from './Board.ts';
 import { Renderer } from './Renderer.ts';
 import { Input } from './Input.ts';
 import { Score } from './Score.ts';
-import { generatePieces, generateSinglePiece, getPieceBounds } from './Piece.ts';
+import { generatePieces, getPieceBounds } from './Piece.ts';
 import { getTheme, haptic } from '../telegram.ts';
 import { saveScore, getLeaderboard } from '../api.ts';
 import type { LeaderboardEntry } from '../api.ts';
@@ -103,14 +103,16 @@ export class Game {
       this.pieces = generatePieces(3, this.board);
     }
 
-    // Regenerate any piece that can't fit (never game over)
-    for (let i = 0; i < this.pieces.length; i++) {
-      if (this.pieces[i] && !this.board.hasAnyValidPlacement([this.pieces[i]!])) {
-        this.pieces[i] = generateSinglePiece(this.board);
-      }
-    }
-
     this.input.updatePieces(this.pieces);
+
+    // Game over: if no remaining piece can fit anywhere
+    const activePieces = this.pieces.filter(p => p !== null) as PieceShape[];
+    if (!this.board.hasAnyValidPlacement(activePieces)) {
+      this.gameOver = true;
+      this.input.setGameOver(true);
+      haptic('error');
+      saveScore(this.score.current).catch(() => {});
+    }
   }
 
   private restart(): void {

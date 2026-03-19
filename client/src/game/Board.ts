@@ -80,6 +80,57 @@ export class Board {
     return false;
   }
 
+  clone(): Board {
+    const copy = new Board();
+    for (let r = 0; r < this.size; r++) {
+      for (let c = 0; c < this.size; c++) {
+        copy.grid[r][c] = this.grid[r][c];
+      }
+    }
+    return copy;
+  }
+
+  /** Place piece and clear full lines, return the new board state */
+  placeAndClear(piece: PieceShape, row: number, col: number): Board {
+    const copy = this.clone();
+    copy.place(piece, row, col);
+    const fullRows = copy.getFullRows();
+    const fullCols = copy.getFullCols();
+    if (fullRows.length > 0 || fullCols.length > 0) {
+      copy.clearLines(fullRows, fullCols);
+    }
+    return copy;
+  }
+
+  /**
+   * Check if all pieces can be placed sequentially in some order.
+   * Tries all permutations. For each, greedily tries positions.
+   * Returns true if at least one valid sequence exists.
+   */
+  canPlaceAllSequentially(pieces: PieceShape[]): boolean {
+    const perms = permutations(pieces);
+
+    for (const perm of perms) {
+      if (this.trySequence(perm, 0)) return true;
+    }
+    return false;
+  }
+
+  private trySequence(pieces: PieceShape[], index: number): boolean {
+    if (index >= pieces.length) return true;
+
+    const piece = pieces[index];
+    for (let r = 0; r < this.size; r++) {
+      for (let c = 0; c < this.size; c++) {
+        if (this.canPlace(piece, r, c)) {
+          const next = this.placeAndClear(piece, r, c);
+          if (next.trySequence(pieces, index + 1)) return true;
+        }
+      }
+    }
+    return false;
+  }
+
   reset(): void {
     for (let r = 0; r < this.size; r++) {
       for (let c = 0; c < this.size; c++) {
@@ -87,4 +138,16 @@ export class Board {
       }
     }
   }
+}
+
+function permutations<T>(arr: T[]): T[][] {
+  if (arr.length <= 1) return [arr];
+  const result: T[][] = [];
+  for (let i = 0; i < arr.length; i++) {
+    const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+    for (const perm of permutations(rest)) {
+      result.push([arr[i], ...perm]);
+    }
+  }
+  return result;
 }
